@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veloce | Premium Car Rental</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="public/index.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo"><i class="fa-solid fa-car-side"></i> VELOCE</a>
+            <nav class="nav-menu">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#features" class="nav-link">Why Us</a>
+                <a href="#cars" class="nav-link">Our Fleet</a>
+                <a href="#testimonials" class="nav-link">Reviews</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="auth" class="btn btn-secondary">Sign In</a>
+                <a href="#cars" class="btn btn-primary">Book Now</a>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle Navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <span class="badge">Premium Rental Experience</span>
+                <h1>Drive the Exception. Rent the Ultimate.</h1>
+                <p>Uncompromising performance. Chilled luxury. Experience our exclusive fleet of precision-engineered vehicles tailored for your journey.</p>
+                <div class="hero-buttons">
+                    <a href="#cars" class="btn btn-primary btn-lg">Explore Fleet</a>
+                    <a href="#features" class="btn btn-outline btn-lg">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="car-glow-effect"></div>
+                <div class="image-crop-container">
+                    <img src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80" alt="Luxury Sports Car">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- <section class="booking-widget-section">
+        <div class="widget-container">
+            <form class="widget-form">
+                <div class="input-group">
+                    <label><i class="fa-solid fa-location-dot"></i> Pickup Location</label>
+                    <input type="text" placeholder="City, airport, or address">
+                </div>
+                <div class="input-group">
+                    <label><i class="fa-solid fa-calendar-days"></i> Pick-up Date</label>
+                    <input type="date">
+                </div>
+                <div class="input-group">
+                    <label><i class="fa-solid fa-calendar-check"></i> Return Date</label>
+                    <input type="date">
+                </div>
+                <button type="submit" class="btn btn-primary btn-search">Find Available Cars</button>
+            </form>
+        </div>
+    </section> -->
+
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Why Choose Veloce</h2>
+                <p>We redefine premium car rentals with seamless service and first-class security.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3>Fully Insured Fleet</h3>
+                    <p>Drive with absolute peace of mind. Every vehicle features comprehensive coverage and real-time security configurations.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <h3>Instant Verification</h3>
+                    <p>No tedious queues. Upload your details, get cleared via our streamlined portal, and unlock your vehicle instantly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-headset"></i></div>
+                    <h3>24/7 Roadside Support</h3>
+                    <p>Wherever you are, our specialized remote tech and logistics assistance teams are standing by to keep you moving.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cars" class="fleet-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Elite Fleet</h2>
+                <p>Select from our handpicked lineup of sports, luxury, and electric vehicles.</p>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="luxury">Luxury</button>
+                    <button class="filter-btn" data-filter="sports">Sports</button>
+                    <button class="filter-btn" data-filter="suv">SUVs</button>
+                </div>
+            </div>
+
+            <div class="fleet-grid">
+                <div class="car-card" data-category="sports">
+                    <div class="car-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80" alt="Porsche 911">
+                    </div>
+                    <div class="car-details">
+                        <span class="car-category">Sports</span>
+                        <h3>Apex Touring GT</h3>
+                        <div class="car-specs">
+                            <span><i class="fa-solid fa-gauge"></i> 310 km/h</span>
+                            <span><i class="fa-solid fa-gears"></i> Auto</span>
+                            <span><i class="fa-solid fa-user"></i> 2 Seats</span>
+                        </div>
+                        <hr class="divider">
+                        <div class="car-footer">
+                            <div class="price"><strong>₱12,500</strong> <span>/ day</span></div>
+                            <a href="#" class="btn btn-primary btn-sm">Rent Now</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="car-card" data-category="luxury">
+                    <div class="car-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80" alt="BMW 5 Series">
+                    </div>
+                    <div class="car-details">
+                        <span class="car-category">Luxury</span>
+                        <h3>Executive Cruiser v8</h3>
+                        <div class="car-specs">
+                            <span><i class="fa-solid fa-gauge"></i> 250 km/h</span>
+                            <span><i class="fa-solid fa-gears"></i> Auto</span>
+                            <span><i class="fa-solid fa-user"></i> 5 Seats</span>
+                        </div>
+                        <hr class="divider">
+                        <div class="car-footer">
+                            <div class="price"><strong>₱9,000</strong> <span>/ day</span></div>
+                            <a href="#" class="btn btn-primary btn-sm">Rent Now</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="car-card" data-category="suv">
+                    <div class="car-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80" alt="Range Rover">
+                    </div>
+                    <div class="car-details">
+                        <span class="car-category">SUVs</span>
+                        <h3>Stealth Matrix 4x4</h3>
+                        <div class="car-specs">
+                            <span><i class="fa-solid fa-gauge"></i> 220 km/h</span>
+                            <span><i class="fa-solid fa-gears"></i> Auto</span>
+                            <span><i class="fa-solid fa-user"></i> 7 Seats</span>
+                        </div>
+                        <hr class="divider">
+                        <div class="car-footer">
+                            <div class="price"><strong>₱10,500</strong> <span>/ day</span></div>
+                            <a href="#" class="btn btn-primary btn-sm">Rent Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials" class="testimonials-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>What Our Drivers Say</h2>
+                <p>Real experiences from our community of premium clients.</p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <p>"The online booking was completely seamless, and the car was immaculate. Exceptional experience from checkout to drop-off."</p>
+                    <div class="client-info">
+                        <strong>Marc A.</strong>
+                        <span>Manila</span>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <p>"Flawless fleet curation. Renting the Apex GT for our weekend run was worth every single peso. Highly secure booking portal."</p>
+                    <div class="client-info">
+                        <strong>Kenneth E.</strong>
+                        <span>Pampanga</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2026 VELOCE Rent A Car. Engineered for excellence.</p>
+        </div>
+    </footer>
+
+    <script src="public/index.js"></script>
+</body>
+</html>
