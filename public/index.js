@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.add('active');
 
             const filterValue = button.getAttribute('data-filter');
-
+     
             carCards.forEach(card => {
                 if (filterValue === 'all' || card.getAttribute('data-category') === filterValue) {
                     card.style.display = 'block';
@@ -32,9 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     card.style.display = 'none';
                     card.style.opacity = '0';
-                }
+                }  
             });
-        });
+        });   
     });
 
     // --- Active Link Highlight on Scroll ---
