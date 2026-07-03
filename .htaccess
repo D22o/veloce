@@ -1,0 +1,17 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block sensitive files
+    <FilesMatch "\.(env|config|sql|log|ini|md)$">
+        Require all denied
+    </FilesMatch>
+
+    # Disable directory listing
+    Options -Indexes
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Remove .php extension
+    RewriteRule ^(.+)$ $1.php [L,QSA]
+</IfModule>

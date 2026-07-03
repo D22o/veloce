@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veloce | Premium Car Rental</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="public/index.css">
+    <link rel="stylesheet" href="assets/css/index.css">
 </head>
 <body>
 
@@ -19,7 +19,7 @@
                 <a href="#testimonials" class="nav-link">Reviews</a>
             </nav>
             <div class="nav-actions">
-                <a href="auth" class="btn btn-secondary">Sign In</a>
+                <a href="login" class="btn btn-secondary">Sign In</a>
                 <a href="#cars" class="btn btn-primary">Book Now</a>
             </div>
             <button class="menu-toggle" aria-label="Toggle Navigation">
@@ -204,6 +204,6 @@
         </div>
     </footer>
 
-    <script src="public/index.js"></script>
+    <script src="assets/js/index.js"></script>
 </body>
 </html>
