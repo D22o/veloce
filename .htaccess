@@ -2,7 +2,7 @@
     RewriteEngine On
 
     # Block sensitive files
-    <FilesMatch "\.(env|config|sql|log|ini|md)$">
+    <FilesMatch "\.(env|config|sql|log|ini|md|example)$">
         Require all denied
     </FilesMatch>
 

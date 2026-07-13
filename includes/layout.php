@@ -1,11 +1,52 @@
 <?php
 /**
- * Layout Render Engine for Veloce Dashboards
+ * Layout Render Engine for Veloce Dashboards with Embedded Security Guards
  */
 
 function renderDashboardHeader(String $title, String $activePage, String $role = 'user') {
+    // --- 1. START SECURE SESSION MANAGEMENT ---
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    // --- 2. AUTH GUARD: CHECK BASIC ASSIGNMENTS ---
+    // If user credentials or the cookie token are missing, reject entry immediately
+    if (!isset($_SESSION['user_id']) || !isset($_COOKIE['token'])) {
+        session_destroy();
+        setcookie('token', '', time() - 3600, '/');
+        header("Location: ../login"); 
+        exit();
+    }
+
+    // --- 3. AUTH GUARD: CRYPTOGRAPHIC FINGERPRINT VERIFICATION ---
+    // Cross-verify the browser cookie against the signature stashed in the session
+    $tokenHash = hash('sha256', $_COOKIE['token']);
+    if ($tokenHash !== $_SESSION['auth_token_fingerprint']) {
+        session_destroy();
+        setcookie('token', '', time() - 3600, '/');
+        header("Location: ../login");
+        exit();
+    }
+
+    // --- 4. AUTH GUARD: ROLE-BASED ACCESS CONTROL (RBAC) ---
+    // Prevent standard users from accessing admin routes and vice-versa
+    if ($_SESSION['user_role'] !== $role) {
+        if ($_SESSION['user_role'] === 'admin') {
+            header("Location: ../admin/admin-dashboard");
+        } else {
+            header("Location: ../user/user-dashboard");
+        }
+        exit();
+    }
+
+    // --- 5. INITIALIZE PATH PARAMETERS & INTERFACE DETAILS ---
     $isAdmin = ($role === 'admin');
-    $homePath = $isAdmin ? '../index' : '../index';
+    $homePath = '../index'; 
+    
+    // Grab initials cleanly from the active user's session data
+    $fullName = $_SESSION['user_name'] ?? ($isAdmin ? 'Admin Console' : 'Guest Driver');
+    $nameParts = explode(' ', trim($fullName));
+    $initials = ($isAdmin) ? 'A' : strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 1));
     ?>
     <!DOCTYPE html>
     <html lang="en">
@@ -14,7 +55,8 @@ function renderDashboardHeader(String $title, String $activePage, String $role =
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Veloce | <?php echo htmlspecialchars($title); ?></title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="../assets/css/index.css"> <style>
+        <link rel="stylesheet" href="../assets/css/index.css"> 
+        <style>
             /* --- DASHBOARD ARCHITECTURE BASE --- */
             :root {
                 --sidebar-width: 260px;
@@ -234,33 +276,19 @@ function renderDashboardHeader(String $title, String $activePage, String $role =
         </div>
         <nav class="sidebar-menu">
             <?php if ($isAdmin): ?>
-                <!-- Admin Routes -->
                 <a href="admin-dashboard" class="menu-item <?php echo $activePage === 'dashboard' ? 'active' : ''; ?>"><i class="fa-solid fa-chart-pie"></i> Metrics Overview</a>
-                
-                <!-- Post, Update, Delete Cars -->
                 <a href="manage-fleet" class="menu-item <?php echo $activePage === 'fleet' ? 'active' : ''; ?>"><i class="fa-solid fa-car"></i> Fleet Inventory</a>
-                
-                <!-- Manage Incoming/Pending Reservations -->
                 <a href="manage-bookings" class="menu-item <?php echo $activePage === 'bookings' ? 'active' : ''; ?>"><i class="fa-solid fa-calendar-check"></i> Booking Approvals</a>
-                
-                <!-- Approve Profile Verification / KYC Documents -->
                 <a href="verify-users" class="menu-item <?php echo $activePage === 'users' ? 'active' : ''; ?>"><i class="fa-solid fa-user-check"></i> User Verifications</a>
             <?php else: ?>
-                <!-- User Routes -->
                 <a href="user-dashboard" class="menu-item <?php echo $activePage === 'dashboard' ? 'active' : ''; ?>"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
-                
-                <!-- 1. Search & Browse Cars -->
                 <a href="fleet-listings" class="menu-item <?php echo $activePage === 'listings' ? 'active' : ''; ?>"><i class="fa-solid fa-car-rear"></i> Explore Fleet</a>
-                
-                <!-- 2 & 3. Track Bookings & Live Status -->
                 <a href="my-bookings" class="menu-item <?php echo $activePage === 'bookings' ? 'active' : ''; ?>"><i class="fa-solid fa-calendar-days"></i> Booking Status</a>
-                
-                <!-- 4. Profile & KYC Verification Status -->
                 <a href="profile-verification" class="menu-item <?php echo $activePage === 'verification' ? 'active' : ''; ?>"><i class="fa-solid fa-user-shield"></i> Verification Profile</a>
             <?php endif; ?>
         </nav>
         <div class="sidebar-footer">
-            <a href="<?php echo $homePath; ?>" class="menu-item logout-btn"><i class="fa-solid fa-right-from-bracket"></i> End Session</a>
+            <a href="../backend/controller/logout" class="menu-item logout-btn"><i class="fa-solid fa-right-from-bracket"></i> End Session</a>
         </div>
     </aside>
 
@@ -273,10 +301,10 @@ function renderDashboardHeader(String $title, String $activePage, String $role =
                 </div>
             </div>
             <div class="user-profile-badge">
-                <div class="avatar-placeholder"><?php echo $isAdmin ? 'A' : 'JE'; ?></div>
+                <div class="avatar-placeholder"><?php echo htmlspecialchars($initials); ?></div>
                 <div class="profile-meta-info">
-                    <span class="name"><?php echo $isAdmin ? 'Admin Console' : 'John Kenneth'; ?></span>
-                    <span class="role-tag"><?php echo $role; ?> access</span>
+                    <span class="name"><?php echo htmlspecialchars($fullName); ?></span>
+                    <span class="role-tag"><?php echo htmlspecialchars($role); ?> access</span>
                 </div>
             </div>
         </header>

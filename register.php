@@ -24,15 +24,24 @@
                 </div>
             </div>
         </div>
-
+        <?php
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+        ?>
         <div class="auth-form-side">
             <div class="form-box-wrapper">
                 <div class="form-header">
                     <h2>Registration Portal</h2>
                     <p>Provide your basic driver metadata details.</p>
                 </div>
-
-                <form id="form-register" class="auth-action-form" action="backend/controller/register-process" method="POST">
+                <?php if (isset($_SESSION['reg_error'])): ?>
+                    <div style="background: rgba(255, 74, 74, 0.1); border: 1px solid #ff4a4a; color: #ff4a4a; padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.5rem; font-weight: 500;">
+                        <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i> 
+                        <?php echo $_SESSION['reg_error']; unset($_SESSION['reg_error']); ?>
+                    </div>
+                <?php endif; ?>
+                <form id="form-register" class="auth-action-form" action="backend/controller/auth/register-process" method="POST">
                     <div class="input-grid">
                         <div class="input-group">
                             <label for="reg-first"><i class="fa-solid fa-user"></i> First Name</label>
