@@ -1,33 +1,30 @@
 <?php
-/**
- * Database Interconnect Manager
- */
 
-// Enforce configuration safety layer
-require_once __DIR__ . '/config.php';
+namespace Backend\Config;
+
+use PDO;
+use PDOException;
 
 class Database {
-    private String $host;
-    private String $db_name;
-    private String $username;
-    private String $password;
-    private PDO $conn;
-
-    public function __construct() {
-        // Grab values directly out of our environment safely
-        $this->host = getenv('DB_HOST') ?: 'localhost';
-        $this->db_name = getenv('DB_NAME');
-        $this->username = getenv('DB_USER') ?: 'root';
-        $this->password = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : '';
-    }
+    private static ?PDO $conn = null;
 
     /**
      * Spawns or returns the active database connection instance
      */
-    public function connect() {
+    public static function connect(): PDO {
+        // If a connection already exists, return it immediately instead of creating a new one
+        if (self::$conn !== null) {
+            return self::$conn;
+        }
+
+        // Grab values directly out of our environment safely
+        $host     = getenv('DB_HOST') ?: 'localhost';
+        $db_name  = getenv('DB_NAME');
+        $username = getenv('DB_USER') ?: 'root';
+        $password = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : '';
 
         try {
-            $dsn = "mysql:host=" . $this->host . ";dbname=" . $this->db_name . ";charset=utf8mb4";
+            $dsn = "mysql:host=" . $host . ";dbname=" . $db_name . ";charset=utf8mb4";
             
             $options = [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -35,7 +32,8 @@ class Database {
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ];
 
-            $this->conn = new PDO($dsn, $this->username, $this->password, $options);
+            // Assign the PDO connection to the static property
+            self::$conn = new PDO($dsn, $username, $password, $options);
             
         } catch (PDOException $e) {
             // Under production environments, suppress explicit database stack traces 
@@ -43,6 +41,6 @@ class Database {
             die("Critical Pipeline Error: Unable to negotiate safe database handshakes.");
         }
 
-        return $this->conn;
+        return self::$conn;
     }
 }

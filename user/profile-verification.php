@@ -1,10 +1,17 @@
 <?php
-require_once '../includes/layout.php';
+require_once '../layout/main-layout.php';
+
 renderDashboardHeader('Account Profile & Verification', 'verification', 'user');
+
+if (isset($_SESSION['user_id'])) {
+    $userModel = new \Backend\Models\UserModel;
+    $_SESSION['verification_status'] = $userModel->getUserVerificationStatus($_SESSION['user_id']);
+}
 
 // Pull details directly from active session memory safely
 $fullName = $_SESSION['user_name'] ?? 'Driver Profile';
 $emailAddress = $_SESSION['user_email'] ?? 'driver@veloce.com';
+$phoneNumber = $_SESSION['phone_number'];
 
 // Generate dynamic avatar initials matching layout engine
 $nameParts = explode(' ', trim($fullName));
@@ -63,7 +70,7 @@ $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 
         margin: 1rem 0 2rem;
     }
 
-    .verification-pill-box i { color: #2ed573; font-size: 0.9rem; }
+    .verification-pill-box i { color: #2ed573;font-size: 0.9rem; }
     .verification-pill-box span { color: #2ed573; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
     .identity-bulletin-list {
@@ -82,6 +89,26 @@ $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 
     .bulletin-node:last-child { margin-bottom: 0; }
     .bulletin-node label { color: #8da2bb; font-size: 0.85rem; font-weight: 500; }
     .bulletin-node value { color: #ffffff; font-size: 0.9rem; font-weight: 600; }
+    .bulletin-node .verified {
+        background: rgba(46, 213, 115, 0.1);
+        color: #2ed573;
+        border: 1px solid rgba(46, 213, 115, 0.2);
+    }
+    .bulletin-node .pending {
+        background: rgba(255, 184, 0, 0.1);
+        color: #ffb800;
+        border: 1px solid rgba(255, 184, 0, 0.2);
+    }
+    .bulletin-node .rejected {
+        background: rgba(255, 74, 74, 0.1);
+        color: #ff4a4a;
+        border: 1px solid rgba(255, 74, 74, 0.2);
+    }
+    .bulletin-node .unverified {
+        background: rgba(255, 74, 74, 0.1);
+        color: #ff4a4a;
+        border: 1px solid rgba(255, 74, 74, 0.2);
+    }
 
     /* Interactive Management Panel (Right side) */
     .profile-management-panel {
@@ -97,6 +124,7 @@ $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 
         border-bottom: 1px solid #1b2a47;
         display: flex;
         gap: 1.5rem;
+        flex-wrap: wrap;
     }
 
     .nav-tab-btn {
@@ -176,6 +204,36 @@ $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 
     }
 
     .commit-save-btn:hover { background: #1456cc; }
+
+    /* Custom Document Upload UI Elements */
+    .file-dropzone-box {
+        border: 2px dashed #1b2a47;
+        background: #060b13;
+        border-radius: 8px;
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    
+    .file-dropzone-box:hover {
+        border-color: #1e6fff;
+        background: rgba(30, 111, 255, 0.02);
+    }
+
+    .file-dropzone-box input[type="file"] {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .dropzone-icon {
+        font-size: 2.5rem;
+        color: #8da2bb;
+        margin-bottom: 1rem;
+    }
 </style>
 
 <div class="profile-grid-container">
@@ -186,18 +244,22 @@ $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 
         <p style="color: #8da2bb; font-size: 0.85rem;"><?php echo htmlspecialchars($emailAddress); ?></p>
 
         <div class="verification-pill-box">
-            <i class="fa-solid fa-badge-check"></i>
-            <span>Identity Trusted</span>
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Email Verified</span>
         </div>
-
+    
         <div class="identity-bulletin-list">
             <div class="bulletin-node">
                 <label>Platform Access</label>
-                <value style="color: #2ed573;">Active Driver</value>
+                <?php if ($_SESSION['verification_status'] === 'approved'): ?>
+                    <span class="status-badge verified">Active Driver</span>
+                <?php else: ?>
+                    <span class="status-badge unverified">Inactive</span>
+                <?php endif; ?>
             </div>
             <div class="bulletin-node">
                 <label>License Verification</label>
-                <value class="status-badge active" style="font-size: 0.7rem;">Verified</value>
+                <value class="status-badge <?= htmlspecialchars($_SESSION['verification_status']) ?>" style="font-size: 0.7rem;"><?= htmlspecialchars($_SESSION['verification_status']) ?></value>
             </div>
             <div class="bulletin-node">
                 <label>Onboard Date</label>
@@ -210,6 +272,7 @@ $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 
         <header class="panel-navigation-header">
             <button type="button" class="nav-tab-btn active" onclick="switchTab(event, 'general-settings')">General Settings</button>
             <button type="button" class="nav-tab-btn" onclick="switchTab(event, 'security-override')">Security & Password</button>
+            <button type="button" class="nav-tab-btn" onclick="switchTab(event, 'document-verification')">Document Verification</button>
         </header>
 
         <div class="panel-content-body">
@@ -225,7 +288,8 @@ $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 
                 </div>
             <?php endif; ?>
 
-            <form id="general-settings" class="form-segment-view active" action="../backend/controller/update-profile-metadata" method="POST">
+            <!-- General Settings View -->
+            <form id="general-settings" class="form-segment-view active" action="<?= APP_URL ?>/api/user/update-profile" method="POST">
                 <div class="input-grid-wrapper">
                     <div class="control-group">
                         <label>First Name</label>
@@ -235,16 +299,21 @@ $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 
                         <label>Last Name</label>
                         <input type="text" name="last_name" class="control-input-field" value="<?php echo htmlspecialchars($nameParts[1] ?? ''); ?>" required>
                     </div>
-                    <div class="control-group span-full-width">
+                    <div class="control-group">
                         <label>Email Address</label>
                         <input type="email" class="control-input-field" value="<?php echo htmlspecialchars($emailAddress); ?>" disabled>
                         <span style="color: #5f758e; font-size: 0.75rem; font-weight: 500;"><i class="fa-solid fa-lock" style="margin-right:4px;"></i> Email changes require custom support clearance authorization.</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="phone_number">Phone Number</label>
+                        <input type="tel" name="phone_number" class="control-input-field" placeholder="+63- 10 Digit Phone Number" value="<?php echo htmlspecialchars($phoneNumber ?? ''); ?>">
                     </div>
                 </div>
                 <button type="submit" class="commit-save-btn"><i class="fa-solid fa-floppy-disk"></i> Save Modifications</button>
             </form>
 
-            <form id="security-override" class="form-segment-view" action="../backend/controller/update-profile-security" method="POST">
+            <!-- Security View -->
+            <form id="security-override" class="form-segment-view" action="<?= APP_URL ?>/api/user/update-password" method="POST">
                 <div class="input-grid-wrapper">
                     <div class="control-group span-full-width">
                         <label>Current Password</label>
@@ -262,6 +331,55 @@ $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 
                 <button type="submit" class="commit-save-btn" style="background: #e67e22;"><i class="fa-solid fa-shield-keyhole"></i> Cycle Access Token</button>
             </form>
 
+            <!-- Document Verification View (New Added Tab) -->
+            <form id="document-verification" class="form-segment-view" action="<?= APP_URL ?>/api/user/verify-profile" method="POST" enctype="multipart/form-data">
+                <?php if (isset($_SESSION['verification_status']) && $_SESSION['verification_status'] === 'approved'): ?>
+                    <div style="background: rgba(46, 213, 115, 0.1); border: 1px solid #2ed573; color: #2ed573; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                        <i class="fa-solid fa-circle-check"></i> Your account is fully verified. No further action is required.
+                    </div>
+                <?php elseif (isset($_SESSION['verification_status']) && $_SESSION['verification_status'] === 'pending'): ?>
+                    <div style="background: rgba(255, 184, 0, 0.1); border: 1px solid #ffb800; color: #ffb800; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                        <i class="fa-solid fa-hourglass-half"></i> Your verification documents are currently under review. Please allow up to 48 hours for processing.
+                    </div>
+                <?php elseif (isset($_SESSION['verification_status']) && $_SESSION['verification_status'] === 'rejected'): ?>
+                    <div style="background: rgba(255, 74, 74, 0.1); border: 1px solid #ff4a4a; color: #ff4a4a; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Your verification documents were rejected. Please review the requirements and resubmit.
+                    </div>
+                <?php elseif (isset($_SESSION['verification_status']) && $_SESSION['verification_status'] === 'unverified'): ?>
+                    <div style="margin-bottom: 1.5rem;">
+                        <h3 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 1.1rem;">Upload Active Driving Credentials</h3>
+                        <p style="color: #8da2bb; font-size: 0.85rem; margin: 0;">In order to unlock system ride matching capabilities, you must upload a clear photographic record of your regulatory Driver's License.</p>
+                    </div>
+
+                    <div class="input-grid-wrapper">
+                        <div class="control-group">
+                            <label>Document Type Identification</label>
+                            <select name="document_type" class="control-input-field" style="height: 47px;" required>
+                                <option value="drivers_license">Driver's License</option>
+                                <option value="passport">International Passport</option>
+                                <option value="national_id">National Identification Card</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Document / License Number</label>
+                            <input type="text" name="document_number" class="control-input-field" placeholder="e.g. N01-12-345678" required>
+                        </div>
+
+                        <div class="control-group span-full-width">
+                            <label>File Upload Asset</label>
+                            <div class="file-dropzone-box">
+                                <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                                <h4 style="color: #fff; margin: 0 0 0.25rem 0; font-size: 0.95rem;">Select image asset or drop here</h4>
+                                <p style="color: #5f758e; font-size: 0.8rem; margin: 0;" id="file-chosen-text">Supports JPG, PNG formats (Max size: 5MB)</p>
+                                <input type="file" name="verification_document" accept="image/jpeg, image/png" onchange="displayFileName(this)" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="commit-save-btn" style="background: #1e6fff;"><i class="fa-solid fa-upload"></i> Process Document Submission</button>
+                <?php endif; ?>
+            </form>
+
         </div>
     </section>
 </div>
@@ -275,6 +393,18 @@ $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 
         // Engage targeted elements
         document.getElementById(targetTabId).classList.add('active');
         event.currentTarget.classList.add('active');
+    }
+
+    // Interactive name update script for file dropzone interface
+    function displayFileName(inputElement) {
+        const statusText = document.getElementById('file-chosen-text');
+        if (inputElement.files && inputElement.files.length > 0) {
+            statusText.innerText = "Target Asset: " + inputElement.files[0].name;
+            statusText.style.color = "#2ed573";
+        } else {
+            statusText.innerText = "Supports JPG, PNG formats (Max size: 5MB)";
+            statusText.style.color = "#5f758e";
+        }
     }
 </script>
 

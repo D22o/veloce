@@ -1,0 +1,20 @@
+/* AUTHENTICATION MEDIA */
+
+@media (max-width: 992px) {
+    .auth-banner-side {
+        display: none;
+    }
+    .auth-form-side {
+        flex: 1;
+        padding: 2rem;
+    }
+}
+
+/* LAYOUT MEDIA */
+
+@media (max-width: 992px) {
+    .dash-sidebar { transform: translateX(-100%); }
+    .dash-sidebar.open { transform: translateX(0); }
+    .dash-main-workspace { margin-left: 0; }
+    .menu-hamburger { display: block; }
+}

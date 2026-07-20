@@ -2,16 +2,23 @@
     RewriteEngine On
 
     # Block sensitive files
-    <FilesMatch "\.(env|config|sql|log|ini|md|example)$">
+    <FilesMatch "\.(env|config|sql|log|ini|example)$">
         Require all denied
     </FilesMatch>
 
     # Disable directory listing
     Options -Indexes
 
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
+    # ----------------------------------------
+    # Serve existing files/directories normally
+    # ----------------------------------------
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
 
-    # Remove .php extension
-    RewriteRule ^(.+)$ $1.php [L,QSA]
+    # API Routes
+    RewriteRule ^api/(.*)$ core-handler?action=$1 [QSA,L]
+
+    # Extension-less PHP pages
+    RewriteRule ^(.+)$ $1.php [QSA,L]
 </IfModule>
